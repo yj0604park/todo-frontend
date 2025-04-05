@@ -15,6 +15,9 @@ type Token = components['schemas']['Token'];
 type HealthResponse = Record<string, any>;
 type DbHealthResponse = Record<string, any>;
 type SystemHealthResponse = Record<string, any>;
+type Item = components['schemas']['ItemResponse'];
+type ItemCreate = components['schemas']['ItemCreate'];
+type ItemUpdate = components['schemas']['ItemUpdate'];
 
 // API 클라이언트 클래스
 class ApiClient {
@@ -129,6 +132,31 @@ class ApiClient {
       `/todos/${todoId}/tasks/${taskIndex}/subtasks/${subtaskIndex}`
     );
     return response.data;
+  }
+  
+  // 아이템 관련 메서드
+  async getItems(params?: { skip?: number; limit?: number }): Promise<Item[]> {
+    const response = await this.client.get<Item[]>('/items/', { params });
+    return response.data;
+  }
+  
+  async getItem(itemId: string): Promise<Item> {
+    const response = await this.client.get<Item>(`/items/${itemId}`);
+    return response.data;
+  }
+  
+  async createItem(item: ItemCreate): Promise<Item> {
+    const response = await this.client.post<Item>('/items/', item);
+    return response.data;
+  }
+  
+  async updateItem(itemId: string, item: ItemUpdate): Promise<Item> {
+    const response = await this.client.put<Item>(`/items/${itemId}`, item);
+    return response.data;
+  }
+  
+  async deleteItem(itemId: string): Promise<void> {
+    await this.client.delete(`/items/${itemId}`);
   }
   
   // 시스템 상태 관련 메서드

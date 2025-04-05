@@ -1,27 +1,48 @@
 import { useEffect, useState } from 'react';
-import { Stack, Title, Card, Group, Button, Text, Checkbox, Badge, Table, ActionIcon, TextInput, Loader, Modal, Textarea, NumberInput } from '@mantine/core';
+import { Stack, Title, Card, Group, Button, Text, Checkbox, Badge, Table, ActionIcon, TextInput, Loader, Modal, Textarea, NumberInput, Accordion, Menu, Divider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconEdit, IconTrash, IconChevronDown, IconList, IconChecks } from '@tabler/icons-react';
 import apiClient from '../api/apiClient';
 import { components } from '../types/api';
 
 type Todo = components['schemas']['TodoResponse'];
 type TodoCreate = components['schemas']['TodoCreate'];
 type TodoUpdate = components['schemas']['TodoUpdate'];
+type Task = components['schemas']['TaskBase'];
+type TaskCreate = components['schemas']['TaskCreate'];
+type TaskUpdate = components['schemas']['TaskUpdate'];
+type Subtask = components['schemas']['SubtaskBase'];
+type SubtaskCreate = components['schemas']['SubtaskCreate'];
+type SubtaskUpdate = components['schemas']['SubtaskUpdate'];
 
 const Todos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [selectedTaskIndex, setSelectedTaskIndex] = useState<number | null>(null);
+  const [selectedSubtaskIndex, setSelectedSubtaskIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState<TodoCreate>({
     title: '',
     description: '',
     priority: 1,
     completed: false
   });
-  const [opened, { open, close }] = useDisclosure(false);
+  const [taskFormData, setTaskFormData] = useState<TaskCreate>({
+    title: '',
+    description: '',
+    completed: false
+  });
+  const [subtaskFormData, setSubtaskFormData] = useState<SubtaskCreate>({
+    title: '',
+    completed: false
+  });
+  const [todoModalOpened, { open: openTodoModal, close: closeTodoModal }] = useDisclosure(false);
+  const [taskModalOpened, { open: openTaskModal, close: closeTaskModal }] = useDisclosure(false);
+  const [subtaskModalOpened, { open: openSubtaskModal, close: closeSubtaskModal }] = useDisclosure(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isTaskEditing, setIsTaskEditing] = useState(false);
+  const [isSubtaskEditing, setIsSubtaskEditing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -57,7 +78,7 @@ const Todos = () => {
         priority: 1,
         completed: false
       });
-      close();
+      closeTodoModal();
     } catch (err) {
       console.error('Error creating todo:', err);
       setError('Todo를 생성하는 중 오류가 발생했습니다.');
@@ -87,7 +108,7 @@ const Todos = () => {
         completed: false
       });
       setSelectedTodo(null);
-      close();
+      closeTodoModal();
     } catch (err) {
       console.error('Error updating todo:', err);
       setError('Todo를 수정하는 중 오류가 발생했습니다.');
@@ -127,7 +148,7 @@ const Todos = () => {
       completed: todo.completed
     });
     setIsEditing(true);
-    open();
+    openTodoModal();
   };
 
   const handleAdd = () => {
@@ -139,7 +160,170 @@ const Todos = () => {
       completed: false
     });
     setIsEditing(false);
-    open();
+    openTodoModal();
+  };
+
+  // Task 관련 함수
+  const handleAddTask = (todo: Todo) => {
+    setSelectedTodo(todo);
+    setTaskFormData({
+      title: '',
+      description: '',
+      completed: false
+    });
+    setIsTaskEditing(false);
+    openTaskModal();
+  };
+
+  const handleEditTask = (todo: Todo, taskIndex: number) => {
+    if (!todo.tasks || !todo.tasks[taskIndex]) return;
+
+    const task = todo.tasks[taskIndex];
+    setSelectedTodo(todo);
+    setSelectedTaskIndex(taskIndex);
+    setTaskFormData({
+      title: task.title,
+      description: task.description || '',
+      completed: task.completed
+    });
+    setIsTaskEditing(true);
+    openTaskModal();
+  };
+
+  const handleCreateTask = async () => {
+    try {
+      if (!selectedTodo || !selectedTodo._id || !taskFormData.title) {
+        setError('Todo와 Task 제목은 필수입니다.');
+        return;
+      }
+
+      const updatedTodo = await apiClient.addTask(selectedTodo._id, taskFormData);
+      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setTaskFormData({
+        title: '',
+        description: '',
+        completed: false
+      });
+      closeTaskModal();
+    } catch (err) {
+      console.error('Error creating task:', err);
+      setError('Task를 생성하는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleUpdateTask = async () => {
+    try {
+      if (!selectedTodo || !selectedTodo._id || selectedTaskIndex === null || !taskFormData.title) {
+        setError('Todo와 Task 제목은 필수입니다.');
+        return;
+      }
+
+      const updatedTodo = await apiClient.updateTask(selectedTodo._id, selectedTaskIndex, taskFormData);
+      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setTaskFormData({
+        title: '',
+        description: '',
+        completed: false
+      });
+      setSelectedTaskIndex(null);
+      closeTaskModal();
+    } catch (err) {
+      console.error('Error updating task:', err);
+      setError('Task를 수정하는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteTask = async (todoId: string, taskIndex: number) => {
+    try {
+      const updatedTodo = await apiClient.deleteTask(todoId, taskIndex);
+      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+    } catch (err) {
+      console.error('Error deleting task:', err);
+      setError('Task를 삭제하는 중 오류가 발생했습니다.');
+    }
+  };
+
+  // Subtask 관련 함수
+  const handleAddSubtask = (todo: Todo, taskIndex: number) => {
+    setSelectedTodo(todo);
+    setSelectedTaskIndex(taskIndex);
+    setSubtaskFormData({
+      title: '',
+      completed: false
+    });
+    setIsSubtaskEditing(false);
+    openSubtaskModal();
+  };
+
+  const handleEditSubtask = (todo: Todo, taskIndex: number, subtaskIndex: number) => {
+    if (!todo.tasks || !todo.tasks[taskIndex] || !todo.tasks[taskIndex].subtasks || !todo.tasks[taskIndex].subtasks[subtaskIndex]) return;
+
+    const subtask = todo.tasks[taskIndex].subtasks[subtaskIndex];
+    setSelectedTodo(todo);
+    setSelectedTaskIndex(taskIndex);
+    setSelectedSubtaskIndex(subtaskIndex);
+    setSubtaskFormData({
+      title: subtask.title,
+      completed: subtask.completed
+    });
+    setIsSubtaskEditing(true);
+    openSubtaskModal();
+  };
+
+  const handleCreateSubtask = async () => {
+    try {
+      if (!selectedTodo || !selectedTodo._id || selectedTaskIndex === null || !subtaskFormData.title) {
+        setError('Todo, Task, Subtask 제목은 필수입니다.');
+        return;
+      }
+
+      const updatedTodo = await apiClient.addSubtask(selectedTodo._id, selectedTaskIndex, subtaskFormData);
+      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setSubtaskFormData({
+        title: '',
+        completed: false
+      });
+      closeSubtaskModal();
+    } catch (err) {
+      console.error('Error creating subtask:', err);
+      setError('Subtask를 생성하는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleUpdateSubtask = async () => {
+    try {
+      if (!selectedTodo || !selectedTodo._id || selectedTaskIndex === null || selectedSubtaskIndex === null || !subtaskFormData.title) {
+        setError('Todo, Task, Subtask 제목은 필수입니다.');
+        return;
+      }
+
+      const updatedTodo = await apiClient.updateSubtask(
+        selectedTodo._id,
+        selectedTaskIndex,
+        selectedSubtaskIndex,
+        subtaskFormData
+      );
+      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setSubtaskFormData({
+        title: '',
+        completed: false
+      });
+      setSelectedSubtaskIndex(null);
+      closeSubtaskModal();
+    } catch (err) {
+      console.error('Error updating subtask:', err);
+      setError('Subtask를 수정하는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteSubtask = async (todoId: string, taskIndex: number, subtaskIndex: number) => {
+    try {
+      const updatedTodo = await apiClient.deleteSubtask(todoId, taskIndex, subtaskIndex);
+      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+    } catch (err) {
+      console.error('Error deleting subtask:', err);
+      setError('Subtask를 삭제하는 중 오류가 발생했습니다.');
+    }
   };
 
   const filteredTodos = todos.filter(todo =>
@@ -180,72 +364,194 @@ const Todos = () => {
           <Text ta="center">Todo 항목이 없습니다.</Text>
         </Card>
       ) : (
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>상태</Table.Th>
-                <Table.Th>제목</Table.Th>
-                <Table.Th>우선순위</Table.Th>
-                <Table.Th>작업</Table.Th>
-                <Table.Th>생성일</Table.Th>
-                <Table.Th>액션</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {filteredTodos.map(todo => (
-                <Table.Tr key={todo._id} opacity={todo.completed ? 0.7 : 1}>
-                  <Table.Td>
-                    <Checkbox
-                      checked={todo.completed}
-                      onChange={() => handleToggleComplete(todo)}
-                    />
-                  </Table.Td>
-                  <Table.Td>
-                    <Text td={todo.completed ? 'line-through' : 'none'}>
-                      {todo.title}
-                    </Text>
+        <Stack>
+          {filteredTodos.map(todo => (
+            <Accordion key={todo._id} variant="separated">
+              <Accordion.Item value={todo._id || 'unknown'}>
+                <Group gap="xs" wrap="nowrap">
+                  <Checkbox
+                    checked={todo.completed}
+                    onChange={() => handleToggleComplete(todo)}
+                    mr="xs"
+                  />
+                  <Accordion.Control>
+                    <Group justify="space-between">
+                      <Group>
+                        <Text td={todo.completed ? 'line-through' : 'none'} fw={500}>
+                          {todo.title}
+                        </Text>
+                        <Badge color={priorityColors[todo.priority]}>P{todo.priority}</Badge>
+                      </Group>
+                      <Group gap="xs">
+                        <Badge>{todo.tasks?.length || 0}개 작업</Badge>
+                        <Text size="xs" c="dimmed">
+                          {todo.created_at ? new Date(todo.created_at).toLocaleDateString('ko-KR') : ''}
+                        </Text>
+                      </Group>
+                    </Group>
+                  </Accordion.Control>
+                </Group>
+                <Accordion.Panel>
+                  <Stack>
                     {todo.description && (
-                      <Text size="xs" c="dimmed" lineClamp={1}>
-                        {todo.description}
-                      </Text>
+                      <Text size="sm" pb="xs">{todo.description}</Text>
                     )}
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge color={priorityColors[todo.priority]}>
-                      P{todo.priority}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>{todo.tasks?.length || 0}개</Table.Td>
-                  <Table.Td>
-                    {todo.created_at ? new Date(todo.created_at).toLocaleDateString('ko-KR') : ''}
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <ActionIcon
+
+                    <Group justify="space-between" mb="md">
+                      <Text fw={500}>작업 목록</Text>
+                      <Button
                         variant="light"
-                        color="blue"
+                        leftSection={<IconPlus size={16} />}
+                        size="xs"
+                        onClick={() => handleAddTask(todo)}
+                      >
+                        작업 추가
+                      </Button>
+                    </Group>
+
+                    {!todo.tasks || todo.tasks.length === 0 ? (
+                      <Text size="sm" c="dimmed" ta="center">작업이 없습니다.</Text>
+                    ) : (
+                      <Stack>
+                        {todo.tasks.map((task, taskIndex) => (
+                          <Card key={taskIndex} shadow="xs" p="md" radius="md" withBorder>
+                            <Group justify="space-between" mb="xs">
+                              <Group>
+                                <Checkbox
+                                  checked={task.completed}
+                                  onChange={async () => {
+                                    if (todo._id) {
+                                      await apiClient.updateTask(todo._id, taskIndex, {
+                                        ...task,
+                                        completed: !task.completed
+                                      });
+                                      fetchTodos();
+                                    }
+                                  }}
+                                />
+                                <Text td={task.completed ? 'line-through' : 'none'} fw={500}>
+                                  {task.title}
+                                </Text>
+                              </Group>
+                              <Menu shadow="md">
+                                <Menu.Target>
+                                  <ActionIcon>
+                                    <IconChevronDown size={16} />
+                                  </ActionIcon>
+                                </Menu.Target>
+                                <Menu.Dropdown>
+                                  <Menu.Item
+                                    leftSection={<IconEdit size={16} />}
+                                    onClick={() => handleEditTask(todo, taskIndex)}
+                                  >
+                                    수정
+                                  </Menu.Item>
+                                  <Menu.Item
+                                    leftSection={<IconPlus size={16} />}
+                                    onClick={() => handleAddSubtask(todo, taskIndex)}
+                                  >
+                                    서브 작업 추가
+                                  </Menu.Item>
+                                  <Menu.Divider />
+                                  <Menu.Item
+                                    color="red"
+                                    leftSection={<IconTrash size={16} />}
+                                    onClick={() => todo._id && handleDeleteTask(todo._id, taskIndex)}
+                                  >
+                                    삭제
+                                  </Menu.Item>
+                                </Menu.Dropdown>
+                              </Menu>
+                            </Group>
+
+                            {task.description && (
+                              <Text size="sm" c="dimmed" mb="sm">{task.description}</Text>
+                            )}
+
+                            {task.subtasks && task.subtasks.length > 0 && (
+                              <Stack gap="xs" pl="md" mt="sm">
+                                <Text size="sm" fw={500}>서브 작업</Text>
+                                {task.subtasks.map((subtask, subtaskIndex) => (
+                                  <Group key={subtaskIndex} justify="space-between">
+                                    <Group>
+                                      <Checkbox
+                                        checked={subtask.completed}
+                                        onChange={async () => {
+                                          if (todo._id) {
+                                            await apiClient.updateSubtask(
+                                              todo._id,
+                                              taskIndex,
+                                              subtaskIndex,
+                                              {
+                                                ...subtask,
+                                                completed: !subtask.completed
+                                              }
+                                            );
+                                            fetchTodos();
+                                          }
+                                        }}
+                                        size="xs"
+                                      />
+                                      <Text size="sm" td={subtask.completed ? 'line-through' : 'none'}>
+                                        {subtask.title}
+                                      </Text>
+                                    </Group>
+                                    <Group gap="xs">
+                                      <ActionIcon
+                                        size="xs"
+                                        color="blue"
+                                        variant="subtle"
+                                        onClick={() => handleEditSubtask(todo, taskIndex, subtaskIndex)}
+                                      >
+                                        <IconEdit size={14} />
+                                      </ActionIcon>
+                                      <ActionIcon
+                                        size="xs"
+                                        color="red"
+                                        variant="subtle"
+                                        onClick={() => todo._id && handleDeleteSubtask(todo._id, taskIndex, subtaskIndex)}
+                                      >
+                                        <IconTrash size={14} />
+                                      </ActionIcon>
+                                    </Group>
+                                  </Group>
+                                ))}
+                              </Stack>
+                            )}
+                          </Card>
+                        ))}
+                      </Stack>
+                    )}
+
+                    <Group justify="flex-end" gap="xs" mt="md">
+                      <Button
+                        variant="light"
+                        leftSection={<IconEdit size={16} />}
+                        size="sm"
                         onClick={() => handleEdit(todo)}
                       >
-                        <IconEdit size={18} />
-                      </ActionIcon>
-                      <ActionIcon
+                        수정
+                      </Button>
+                      <Button
                         variant="light"
                         color="red"
-                        onClick={() => handleDeleteTodo(todo._id)}
+                        leftSection={<IconTrash size={16} />}
+                        size="sm"
+                        onClick={() => todo._id && handleDeleteTodo(todo._id)}
                       >
-                        <IconTrash size={18} />
-                      </ActionIcon>
+                        삭제
+                      </Button>
                     </Group>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Card>
+                  </Stack>
+                </Accordion.Panel>
+              </Accordion.Item>
+            </Accordion>
+          ))}
+        </Stack>
       )}
 
-      <Modal opened={opened} onClose={close} title={isEditing ? "Todo 수정" : "새 Todo 추가"}>
+      {/* Todo 모달 */}
+      <Modal opened={todoModalOpened} onClose={closeTodoModal} title={isEditing ? "Todo 수정" : "새 Todo 추가"}>
         <Stack>
           <TextInput
             label="제목"
@@ -278,9 +584,68 @@ const Todos = () => {
           />
 
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={close}>취소</Button>
+            <Button variant="outline" onClick={closeTodoModal}>취소</Button>
             <Button onClick={isEditing ? handleUpdateTodo : handleCreateTodo}>
               {isEditing ? "수정" : "추가"}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Task 모달 */}
+      <Modal opened={taskModalOpened} onClose={closeTaskModal} title={isTaskEditing ? "작업 수정" : "새 작업 추가"}>
+        <Stack>
+          <TextInput
+            label="제목"
+            placeholder="작업 제목"
+            required
+            value={taskFormData.title}
+            onChange={(e) => setTaskFormData(prev => ({ ...prev, title: e.target.value }))}
+          />
+
+          <Textarea
+            label="설명"
+            placeholder="설명(선택사항)"
+            value={taskFormData.description || ''}
+            onChange={(e) => setTaskFormData(prev => ({ ...prev, description: e.target.value }))}
+          />
+
+          <Checkbox
+            label="완료됨"
+            checked={!!taskFormData.completed}
+            onChange={(e) => setTaskFormData(prev => ({ ...prev, completed: e.target.checked }))}
+          />
+
+          <Group justify="flex-end" mt="md">
+            <Button variant="outline" onClick={closeTaskModal}>취소</Button>
+            <Button onClick={isTaskEditing ? handleUpdateTask : handleCreateTask}>
+              {isTaskEditing ? "수정" : "추가"}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Subtask 모달 */}
+      <Modal opened={subtaskModalOpened} onClose={closeSubtaskModal} title={isSubtaskEditing ? "서브 작업 수정" : "새 서브 작업 추가"}>
+        <Stack>
+          <TextInput
+            label="제목"
+            placeholder="서브 작업 제목"
+            required
+            value={subtaskFormData.title}
+            onChange={(e) => setSubtaskFormData(prev => ({ ...prev, title: e.target.value }))}
+          />
+
+          <Checkbox
+            label="완료됨"
+            checked={!!subtaskFormData.completed}
+            onChange={(e) => setSubtaskFormData(prev => ({ ...prev, completed: e.target.checked }))}
+          />
+
+          <Group justify="flex-end" mt="md">
+            <Button variant="outline" onClick={closeSubtaskModal}>취소</Button>
+            <Button onClick={isSubtaskEditing ? handleUpdateSubtask : handleCreateSubtask}>
+              {isSubtaskEditing ? "수정" : "추가"}
             </Button>
           </Group>
         </Stack>
