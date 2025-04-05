@@ -31,4 +31,4 @@
 - [ ] Todo의 task가 완료될 때 collapse 되지 않도록 수정
 - [ ] 로그인 구현
 - [x] Linter 설정
-- [ ] Commit 시 Linter 실행
+- [x] Commit 시 Linter 실행

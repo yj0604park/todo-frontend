@@ -1,19 +1,31 @@
 import { useEffect, useState } from 'react';
-import { Stack, Title, Card, Group, Button, Text, Checkbox, Badge, Table, ActionIcon, TextInput, Loader, Modal, Textarea, NumberInput, Accordion, Menu, Divider } from '@mantine/core';
+import {
+  Stack,
+  Title,
+  Card,
+  Group,
+  Button,
+  Text,
+  Checkbox,
+  Badge,
+  ActionIcon,
+  TextInput,
+  Loader,
+  Modal,
+  Textarea,
+  NumberInput,
+  Accordion,
+  Menu,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconEdit, IconTrash, IconChevronDown, IconList, IconChecks } from '@tabler/icons-react';
+import { IconPlus, IconEdit, IconTrash, IconChevronDown } from '@tabler/icons-react';
 import apiClient from '../api/apiClient';
 import { components } from '../types/api';
 
 type Todo = components['schemas']['TodoResponse'];
 type TodoCreate = components['schemas']['TodoCreate'];
-type TodoUpdate = components['schemas']['TodoUpdate'];
-type Task = components['schemas']['TaskBase'];
 type TaskCreate = components['schemas']['TaskCreate'];
-type TaskUpdate = components['schemas']['TaskUpdate'];
-type Subtask = components['schemas']['SubtaskBase'];
 type SubtaskCreate = components['schemas']['SubtaskCreate'];
-type SubtaskUpdate = components['schemas']['SubtaskUpdate'];
 
 const Todos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -26,20 +38,21 @@ const Todos = () => {
     title: '',
     description: '',
     priority: 1,
-    completed: false
+    completed: false,
   });
   const [taskFormData, setTaskFormData] = useState<TaskCreate>({
     title: '',
     description: '',
-    completed: false
+    completed: false,
   });
   const [subtaskFormData, setSubtaskFormData] = useState<SubtaskCreate>({
     title: '',
-    completed: false
+    completed: false,
   });
   const [todoModalOpened, { open: openTodoModal, close: closeTodoModal }] = useDisclosure(false);
   const [taskModalOpened, { open: openTaskModal, close: closeTaskModal }] = useDisclosure(false);
-  const [subtaskModalOpened, { open: openSubtaskModal, close: closeSubtaskModal }] = useDisclosure(false);
+  const [subtaskModalOpened, { open: openSubtaskModal, close: closeSubtaskModal }] =
+    useDisclosure(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isTaskEditing, setIsTaskEditing] = useState(false);
   const [isSubtaskEditing, setIsSubtaskEditing] = useState(false);
@@ -76,7 +89,7 @@ const Todos = () => {
         title: '',
         description: '',
         priority: 1,
-        completed: false
+        completed: false,
       });
       closeTodoModal();
     } catch (err) {
@@ -97,15 +110,15 @@ const Todos = () => {
           title: formData.title,
           description: formData.description,
           priority: formData.priority,
-          completed: formData.completed
+          completed: formData.completed,
         });
-        setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+        setTodos(prev => prev.map(todo => (todo._id === updatedTodo._id ? updatedTodo : todo)));
       }
       setFormData({
         title: '',
         description: '',
         priority: 1,
-        completed: false
+        completed: false,
       });
       setSelectedTodo(null);
       closeTodoModal();
@@ -129,9 +142,9 @@ const Todos = () => {
     try {
       if (todo._id) {
         const updatedTodo = await apiClient.updateTodo(todo._id, {
-          completed: !todo.completed
+          completed: !todo.completed,
         });
-        setTodos(prev => prev.map(t => t._id === updatedTodo._id ? updatedTodo : t));
+        setTodos(prev => prev.map(t => (t._id === updatedTodo._id ? updatedTodo : t)));
       }
     } catch (err) {
       console.error('Error toggling todo completion:', err);
@@ -145,7 +158,7 @@ const Todos = () => {
       title: todo.title,
       description: todo.description || '',
       priority: todo.priority,
-      completed: todo.completed
+      completed: todo.completed,
     });
     setIsEditing(true);
     openTodoModal();
@@ -157,7 +170,7 @@ const Todos = () => {
       title: '',
       description: '',
       priority: 1,
-      completed: false
+      completed: false,
     });
     setIsEditing(false);
     openTodoModal();
@@ -169,7 +182,7 @@ const Todos = () => {
     setTaskFormData({
       title: '',
       description: '',
-      completed: false
+      completed: false,
     });
     setIsTaskEditing(false);
     openTaskModal();
@@ -184,7 +197,7 @@ const Todos = () => {
     setTaskFormData({
       title: task.title,
       description: task.description || '',
-      completed: task.completed
+      completed: task.completed,
     });
     setIsTaskEditing(true);
     openTaskModal();
@@ -198,11 +211,11 @@ const Todos = () => {
       }
 
       const updatedTodo = await apiClient.addTask(selectedTodo._id, taskFormData);
-      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setTodos(prev => prev.map(todo => (todo._id === updatedTodo._id ? updatedTodo : todo)));
       setTaskFormData({
         title: '',
         description: '',
-        completed: false
+        completed: false,
       });
       closeTaskModal();
     } catch (err) {
@@ -218,12 +231,16 @@ const Todos = () => {
         return;
       }
 
-      const updatedTodo = await apiClient.updateTask(selectedTodo._id, selectedTaskIndex, taskFormData);
-      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      const updatedTodo = await apiClient.updateTask(
+        selectedTodo._id,
+        selectedTaskIndex,
+        taskFormData
+      );
+      setTodos(prev => prev.map(todo => (todo._id === updatedTodo._id ? updatedTodo : todo)));
       setTaskFormData({
         title: '',
         description: '',
-        completed: false
+        completed: false,
       });
       setSelectedTaskIndex(null);
       closeTaskModal();
@@ -236,7 +253,7 @@ const Todos = () => {
   const handleDeleteTask = async (todoId: string, taskIndex: number) => {
     try {
       const updatedTodo = await apiClient.deleteTask(todoId, taskIndex);
-      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setTodos(prev => prev.map(todo => (todo._id === updatedTodo._id ? updatedTodo : todo)));
     } catch (err) {
       console.error('Error deleting task:', err);
       setError('Task를 삭제하는 중 오류가 발생했습니다.');
@@ -249,14 +266,20 @@ const Todos = () => {
     setSelectedTaskIndex(taskIndex);
     setSubtaskFormData({
       title: '',
-      completed: false
+      completed: false,
     });
     setIsSubtaskEditing(false);
     openSubtaskModal();
   };
 
   const handleEditSubtask = (todo: Todo, taskIndex: number, subtaskIndex: number) => {
-    if (!todo.tasks || !todo.tasks[taskIndex] || !todo.tasks[taskIndex].subtasks || !todo.tasks[taskIndex].subtasks[subtaskIndex]) return;
+    if (
+      !todo.tasks ||
+      !todo.tasks[taskIndex] ||
+      !todo.tasks[taskIndex].subtasks ||
+      !todo.tasks[taskIndex].subtasks[subtaskIndex]
+    )
+      return;
 
     const subtask = todo.tasks[taskIndex].subtasks[subtaskIndex];
     setSelectedTodo(todo);
@@ -264,7 +287,7 @@ const Todos = () => {
     setSelectedSubtaskIndex(subtaskIndex);
     setSubtaskFormData({
       title: subtask.title,
-      completed: subtask.completed
+      completed: subtask.completed,
     });
     setIsSubtaskEditing(true);
     openSubtaskModal();
@@ -272,16 +295,25 @@ const Todos = () => {
 
   const handleCreateSubtask = async () => {
     try {
-      if (!selectedTodo || !selectedTodo._id || selectedTaskIndex === null || !subtaskFormData.title) {
+      if (
+        !selectedTodo ||
+        !selectedTodo._id ||
+        selectedTaskIndex === null ||
+        !subtaskFormData.title
+      ) {
         setError('Todo, Task, Subtask 제목은 필수입니다.');
         return;
       }
 
-      const updatedTodo = await apiClient.addSubtask(selectedTodo._id, selectedTaskIndex, subtaskFormData);
-      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      const updatedTodo = await apiClient.addSubtask(
+        selectedTodo._id,
+        selectedTaskIndex,
+        subtaskFormData
+      );
+      setTodos(prev => prev.map(todo => (todo._id === updatedTodo._id ? updatedTodo : todo)));
       setSubtaskFormData({
         title: '',
-        completed: false
+        completed: false,
       });
       closeSubtaskModal();
     } catch (err) {
@@ -292,7 +324,13 @@ const Todos = () => {
 
   const handleUpdateSubtask = async () => {
     try {
-      if (!selectedTodo || !selectedTodo._id || selectedTaskIndex === null || selectedSubtaskIndex === null || !subtaskFormData.title) {
+      if (
+        !selectedTodo ||
+        !selectedTodo._id ||
+        selectedTaskIndex === null ||
+        selectedSubtaskIndex === null ||
+        !subtaskFormData.title
+      ) {
         setError('Todo, Task, Subtask 제목은 필수입니다.');
         return;
       }
@@ -303,10 +341,10 @@ const Todos = () => {
         selectedSubtaskIndex,
         subtaskFormData
       );
-      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setTodos(prev => prev.map(todo => (todo._id === updatedTodo._id ? updatedTodo : todo)));
       setSubtaskFormData({
         title: '',
-        completed: false
+        completed: false,
       });
       setSelectedSubtaskIndex(null);
       closeSubtaskModal();
@@ -319,16 +357,17 @@ const Todos = () => {
   const handleDeleteSubtask = async (todoId: string, taskIndex: number, subtaskIndex: number) => {
     try {
       const updatedTodo = await apiClient.deleteSubtask(todoId, taskIndex, subtaskIndex);
-      setTodos(prev => prev.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo));
+      setTodos(prev => prev.map(todo => (todo._id === updatedTodo._id ? updatedTodo : todo)));
     } catch (err) {
       console.error('Error deleting subtask:', err);
       setError('Subtask를 삭제하는 중 오류가 발생했습니다.');
     }
   };
 
-  const filteredTodos = todos.filter(todo =>
-    todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (todo.description && todo.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredTodos = todos.filter(
+    todo =>
+      todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (todo.description && todo.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const priorityColors: Record<number, string> = {
@@ -336,24 +375,32 @@ const Todos = () => {
     2: 'green',
     3: 'yellow',
     4: 'orange',
-    5: 'red'
+    5: 'red',
   };
 
   return (
     <Stack>
-      <Title order={1} mb="md">Todo 관리</Title>
+      <Title order={1} mb="md">
+        Todo 관리
+      </Title>
 
       <Group justify="space-between" mb="md">
         <TextInput
           placeholder="검색..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           style={{ width: '300px' }}
         />
-        <Button leftSection={<IconPlus size={18} />} onClick={handleAdd}>새 Todo 추가</Button>
+        <Button leftSection={<IconPlus size={18} />} onClick={handleAdd}>
+          새 Todo 추가
+        </Button>
       </Group>
 
-      {error && <Text c="red" mb="md">{error}</Text>}
+      {error && (
+        <Text c="red" mb="md">
+          {error}
+        </Text>
+      )}
 
       {loading ? (
         <Group justify="center">
@@ -385,7 +432,9 @@ const Todos = () => {
                       <Group gap="xs">
                         <Badge>{todo.tasks?.length || 0}개 작업</Badge>
                         <Text size="xs" c="dimmed">
-                          {todo.created_at ? new Date(todo.created_at).toLocaleDateString('ko-KR') : ''}
+                          {todo.created_at
+                            ? new Date(todo.created_at).toLocaleDateString('ko-KR')
+                            : ''}
                         </Text>
                       </Group>
                     </Group>
@@ -394,7 +443,9 @@ const Todos = () => {
                 <Accordion.Panel>
                   <Stack>
                     {todo.description && (
-                      <Text size="sm" pb="xs">{todo.description}</Text>
+                      <Text size="sm" pb="xs">
+                        {todo.description}
+                      </Text>
                     )}
 
                     <Group justify="space-between" mb="md">
@@ -410,7 +461,9 @@ const Todos = () => {
                     </Group>
 
                     {!todo.tasks || todo.tasks.length === 0 ? (
-                      <Text size="sm" c="dimmed" ta="center">작업이 없습니다.</Text>
+                      <Text size="sm" c="dimmed" ta="center">
+                        작업이 없습니다.
+                      </Text>
                     ) : (
                       <Stack>
                         {todo.tasks.map((task, taskIndex) => (
@@ -423,7 +476,7 @@ const Todos = () => {
                                     if (todo._id) {
                                       await apiClient.updateTask(todo._id, taskIndex, {
                                         ...task,
-                                        completed: !task.completed
+                                        completed: !task.completed,
                                       });
                                       fetchTodos();
                                     }
@@ -456,7 +509,9 @@ const Todos = () => {
                                   <Menu.Item
                                     color="red"
                                     leftSection={<IconTrash size={16} />}
-                                    onClick={() => todo._id && handleDeleteTask(todo._id, taskIndex)}
+                                    onClick={() =>
+                                      todo._id && handleDeleteTask(todo._id, taskIndex)
+                                    }
                                   >
                                     삭제
                                   </Menu.Item>
@@ -465,12 +520,16 @@ const Todos = () => {
                             </Group>
 
                             {task.description && (
-                              <Text size="sm" c="dimmed" mb="sm">{task.description}</Text>
+                              <Text size="sm" c="dimmed" mb="sm">
+                                {task.description}
+                              </Text>
                             )}
 
                             {task.subtasks && task.subtasks.length > 0 && (
                               <Stack gap="xs" pl="md" mt="sm">
-                                <Text size="sm" fw={500}>서브 작업</Text>
+                                <Text size="sm" fw={500}>
+                                  서브 작업
+                                </Text>
                                 {task.subtasks.map((subtask, subtaskIndex) => (
                                   <Group key={subtaskIndex} justify="space-between">
                                     <Group>
@@ -484,7 +543,7 @@ const Todos = () => {
                                               subtaskIndex,
                                               {
                                                 ...subtask,
-                                                completed: !subtask.completed
+                                                completed: !subtask.completed,
                                               }
                                             );
                                             fetchTodos();
@@ -492,7 +551,10 @@ const Todos = () => {
                                         }}
                                         size="xs"
                                       />
-                                      <Text size="sm" td={subtask.completed ? 'line-through' : 'none'}>
+                                      <Text
+                                        size="sm"
+                                        td={subtask.completed ? 'line-through' : 'none'}
+                                      >
                                         {subtask.title}
                                       </Text>
                                     </Group>
@@ -501,7 +563,9 @@ const Todos = () => {
                                         size="xs"
                                         color="blue"
                                         variant="subtle"
-                                        onClick={() => handleEditSubtask(todo, taskIndex, subtaskIndex)}
+                                        onClick={() =>
+                                          handleEditSubtask(todo, taskIndex, subtaskIndex)
+                                        }
                                       >
                                         <IconEdit size={14} />
                                       </ActionIcon>
@@ -509,7 +573,10 @@ const Todos = () => {
                                         size="xs"
                                         color="red"
                                         variant="subtle"
-                                        onClick={() => todo._id && handleDeleteSubtask(todo._id, taskIndex, subtaskIndex)}
+                                        onClick={() =>
+                                          todo._id &&
+                                          handleDeleteSubtask(todo._id, taskIndex, subtaskIndex)
+                                        }
                                       >
                                         <IconTrash size={14} />
                                       </ActionIcon>
@@ -551,21 +618,25 @@ const Todos = () => {
       )}
 
       {/* Todo 모달 */}
-      <Modal opened={todoModalOpened} onClose={closeTodoModal} title={isEditing ? "Todo 수정" : "새 Todo 추가"}>
+      <Modal
+        opened={todoModalOpened}
+        onClose={closeTodoModal}
+        title={isEditing ? 'Todo 수정' : '새 Todo 추가'}
+      >
         <Stack>
           <TextInput
             label="제목"
             placeholder="Todo 제목"
             required
             value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+            onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
           />
 
           <Textarea
             label="설명"
             placeholder="설명(선택사항)"
             value={formData.description || ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
           />
 
           <NumberInput
@@ -574,78 +645,94 @@ const Todos = () => {
             min={1}
             max={5}
             value={formData.priority || 1}
-            onChange={(value) => setFormData(prev => ({ ...prev, priority: typeof value === 'number' ? value : 1 }))}
+            onChange={value =>
+              setFormData(prev => ({ ...prev, priority: typeof value === 'number' ? value : 1 }))
+            }
           />
 
           <Checkbox
             label="완료됨"
             checked={!!formData.completed}
-            onChange={(e) => setFormData(prev => ({ ...prev, completed: e.target.checked }))}
+            onChange={e => setFormData(prev => ({ ...prev, completed: e.target.checked }))}
           />
 
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={closeTodoModal}>취소</Button>
+            <Button variant="outline" onClick={closeTodoModal}>
+              취소
+            </Button>
             <Button onClick={isEditing ? handleUpdateTodo : handleCreateTodo}>
-              {isEditing ? "수정" : "추가"}
+              {isEditing ? '수정' : '추가'}
             </Button>
           </Group>
         </Stack>
       </Modal>
 
       {/* Task 모달 */}
-      <Modal opened={taskModalOpened} onClose={closeTaskModal} title={isTaskEditing ? "작업 수정" : "새 작업 추가"}>
+      <Modal
+        opened={taskModalOpened}
+        onClose={closeTaskModal}
+        title={isTaskEditing ? '작업 수정' : '새 작업 추가'}
+      >
         <Stack>
           <TextInput
             label="제목"
             placeholder="작업 제목"
             required
             value={taskFormData.title}
-            onChange={(e) => setTaskFormData(prev => ({ ...prev, title: e.target.value }))}
+            onChange={e => setTaskFormData(prev => ({ ...prev, title: e.target.value }))}
           />
 
           <Textarea
             label="설명"
             placeholder="설명(선택사항)"
             value={taskFormData.description || ''}
-            onChange={(e) => setTaskFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={e => setTaskFormData(prev => ({ ...prev, description: e.target.value }))}
           />
 
           <Checkbox
             label="완료됨"
             checked={!!taskFormData.completed}
-            onChange={(e) => setTaskFormData(prev => ({ ...prev, completed: e.target.checked }))}
+            onChange={e => setTaskFormData(prev => ({ ...prev, completed: e.target.checked }))}
           />
 
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={closeTaskModal}>취소</Button>
+            <Button variant="outline" onClick={closeTaskModal}>
+              취소
+            </Button>
             <Button onClick={isTaskEditing ? handleUpdateTask : handleCreateTask}>
-              {isTaskEditing ? "수정" : "추가"}
+              {isTaskEditing ? '수정' : '추가'}
             </Button>
           </Group>
         </Stack>
       </Modal>
 
       {/* Subtask 모달 */}
-      <Modal opened={subtaskModalOpened} onClose={closeSubtaskModal} title={isSubtaskEditing ? "서브 작업 수정" : "새 서브 작업 추가"}>
+      <Modal
+        opened={subtaskModalOpened}
+        onClose={closeSubtaskModal}
+        title={isSubtaskEditing ? '서브 작업 수정' : '새 서브 작업 추가'}
+      >
         <Stack>
           <TextInput
             label="제목"
             placeholder="서브 작업 제목"
             required
             value={subtaskFormData.title}
-            onChange={(e) => setSubtaskFormData(prev => ({ ...prev, title: e.target.value }))}
+            onChange={e => setSubtaskFormData(prev => ({ ...prev, title: e.target.value }))}
           />
 
           <Checkbox
             label="완료됨"
             checked={!!subtaskFormData.completed}
-            onChange={(e) => setSubtaskFormData(prev => ({ ...prev, completed: e.target.checked }))}
+            onChange={e => setSubtaskFormData(prev => ({ ...prev, completed: e.target.checked }))}
           />
 
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={closeSubtaskModal}>취소</Button>
+            <Button variant="outline" onClick={closeSubtaskModal}>
+              취소
+            </Button>
             <Button onClick={isSubtaskEditing ? handleUpdateSubtask : handleCreateSubtask}>
-              {isSubtaskEditing ? "수정" : "추가"}
+              {isSubtaskEditing ? '수정' : '추가'}
             </Button>
           </Group>
         </Stack>
@@ -654,4 +741,4 @@ const Todos = () => {
   );
 };
 
-export default Todos; 
+export default Todos;

@@ -16,7 +16,7 @@ const SystemStatus = () => {
         const [healthData, dbData, systemData] = await Promise.all([
           apiClient.getHealthStatus(),
           apiClient.getDbHealth(),
-          apiClient.getSystemHealth()
+          apiClient.getSystemHealth(),
         ]);
 
         setHealthStatus(healthData);
@@ -40,7 +40,9 @@ const SystemStatus = () => {
 
   return (
     <Stack>
-      <Title order={1} mb="md">시스템 상태</Title>
+      <Title order={1} mb="md">
+        시스템 상태
+      </Title>
 
       {loading ? (
         <Group justify="center">
@@ -74,7 +76,11 @@ const SystemStatus = () => {
                 </Group>
                 <Group justify="space-between">
                   <Text>현재 시각</Text>
-                  <Text fw={500}>{healthStatus?.timestamp ? new Date(healthStatus.timestamp).toLocaleString('ko-KR') : '알 수 없음'}</Text>
+                  <Text fw={500}>
+                    {healthStatus?.timestamp
+                      ? new Date(healthStatus.timestamp).toLocaleString('ko-KR')
+                      : '알 수 없음'}
+                  </Text>
                 </Group>
               </Stack>
             </Card>
@@ -100,7 +106,9 @@ const SystemStatus = () => {
                 </Group>
                 {dbStatus?.details && (
                   <Stack mt="md">
-                    <Text fw={500} size="sm">추가 정보</Text>
+                    <Text fw={500} size="sm">
+                      추가 정보
+                    </Text>
                     <pre style={{ fontSize: '12px', maxHeight: '150px', overflow: 'auto' }}>
                       {JSON.stringify(dbStatus.details, null, 2)}
                     </pre>
@@ -120,39 +128,80 @@ const SystemStatus = () => {
               {systemStatus ? (
                 <Stack gap="xs">
                   <Text>CPU 사용률</Text>
-                  <Progress value={typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0} color={getCpuColor(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)} mb="xs" />
+                  <Progress
+                    value={typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0}
+                    color={getCpuColor(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)}
+                    mb="xs"
+                  />
                   <Group justify="space-between">
-                    <Text size="xs">{typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0}%</Text>
-                    <Text size="xs" c={getCpuColor(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)}>
+                    <Text size="xs">
+                      {typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0}%
+                    </Text>
+                    <Text
+                      size="xs"
+                      c={getCpuColor(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)}
+                    >
                       {getCpuStatus(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)}
                     </Text>
                   </Group>
 
                   <Text mt="md">메모리 사용률</Text>
                   <Progress
-                    value={typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0}
-                    color={getMemoryColor(typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0)}
+                    value={
+                      typeof systemStatus.memory?.percent === 'number'
+                        ? systemStatus.memory.percent
+                        : 0
+                    }
+                    color={getMemoryColor(
+                      typeof systemStatus.memory?.percent === 'number'
+                        ? systemStatus.memory.percent
+                        : 0
+                    )}
                     mb="xs"
                   />
                   <Group justify="space-between">
-                    <Text size="xs">{typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0}%</Text>
                     <Text size="xs">
-                      {typeof systemStatus.memory?.used === 'number' ? formatBytes(systemStatus.memory.used) : '0 B'} /
-                      {typeof systemStatus.memory?.total === 'number' ? formatBytes(systemStatus.memory.total) : '0 B'}
+                      {typeof systemStatus.memory?.percent === 'number'
+                        ? systemStatus.memory.percent
+                        : 0}
+                      %
+                    </Text>
+                    <Text size="xs">
+                      {typeof systemStatus.memory?.used === 'number'
+                        ? formatBytes(systemStatus.memory.used)
+                        : '0 B'}{' '}
+                      /
+                      {typeof systemStatus.memory?.total === 'number'
+                        ? formatBytes(systemStatus.memory.total)
+                        : '0 B'}
                     </Text>
                   </Group>
 
                   <Text mt="md">디스크 사용률</Text>
                   <Progress
-                    value={typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0}
-                    color={getDiskColor(typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0)}
+                    value={
+                      typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0
+                    }
+                    color={getDiskColor(
+                      typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0
+                    )}
                     mb="xs"
                   />
                   <Group justify="space-between">
-                    <Text size="xs">{typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0}%</Text>
                     <Text size="xs">
-                      {typeof systemStatus.disk?.used === 'number' ? formatBytes(systemStatus.disk.used) : '0 B'} /
-                      {typeof systemStatus.disk?.total === 'number' ? formatBytes(systemStatus.disk.total) : '0 B'}
+                      {typeof systemStatus.disk?.percent === 'number'
+                        ? systemStatus.disk.percent
+                        : 0}
+                      %
+                    </Text>
+                    <Text size="xs">
+                      {typeof systemStatus.disk?.used === 'number'
+                        ? formatBytes(systemStatus.disk.used)
+                        : '0 B'}{' '}
+                      /
+                      {typeof systemStatus.disk?.total === 'number'
+                        ? formatBytes(systemStatus.disk.total)
+                        : '0 B'}
                     </Text>
                   </Group>
                 </Stack>
@@ -226,4 +275,4 @@ const getCpuStatus = (value: number): string => {
   return '정상';
 };
 
-export default SystemStatus; 
+export default SystemStatus;

@@ -14,9 +14,11 @@ const AppNavbar = () => {
 
   return (
     <Stack p="md" gap="sm">
-      <Text fw={700} size="lg" mb="md">메뉴</Text>
+      <Text fw={700} size="lg" mb="md">
+        메뉴
+      </Text>
 
-      {LINKS.map((link) => (
+      {LINKS.map(link => (
         <NavLink
           key={link.path}
           component={Link}
@@ -28,13 +30,17 @@ const AppNavbar = () => {
         />
       ))}
 
-      <Text fw={500} mt="xl" mb="sm" size="sm">시스템 정보</Text>
+      <Text fw={500} mt="xl" mb="sm" size="sm">
+        시스템 정보
+      </Text>
       <Group gap="xs">
-        <Text size="xs" c="dimmed">버전:</Text>
+        <Text size="xs" c="dimmed">
+          버전:
+        </Text>
         <Text size="xs">v0.1.0</Text>
       </Group>
     </Stack>
   );
 };
 
-export default AppNavbar; 
+export default AppNavbar;

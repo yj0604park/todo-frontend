@@ -20,7 +20,7 @@ const Dashboard = () => {
           apiClient.getTodos(),
           apiClient.getHealthStatus(),
           apiClient.getDbHealth(),
-          apiClient.getSystemHealth()
+          apiClient.getSystemHealth(),
         ]);
 
         setTodos(todosData);
@@ -40,19 +40,23 @@ const Dashboard = () => {
 
   // 완료된 Todo 항목 비율 계산
   const completedTodosCount = todos.filter(todo => todo.completed).length;
-  const completedTodosPercentage = todos.length > 0
-    ? Math.round((completedTodosCount / todos.length) * 100)
-    : 0;
+  const completedTodosPercentage =
+    todos.length > 0 ? Math.round((completedTodosCount / todos.length) * 100) : 0;
 
   // 우선순위별 Todo 항목 수 계산
-  const priorityCounts = todos.reduce((acc, todo) => {
-    acc[todo.priority] = (acc[todo.priority] || 0) + 1;
-    return acc;
-  }, {} as Record<number, number>);
+  const priorityCounts = todos.reduce(
+    (acc, todo) => {
+      acc[todo.priority] = (acc[todo.priority] || 0) + 1;
+      return acc;
+    },
+    {} as Record<number, number>
+  );
 
   return (
     <Stack>
-      <Title order={1} mb="md">대시보드</Title>
+      <Title order={1} mb="md">
+        대시보드
+      </Title>
 
       {loading ? (
         <Text>데이터를 불러오는 중...</Text>
@@ -62,12 +66,16 @@ const Dashboard = () => {
         <>
           <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Text c="dimmed" size="sm">전체 Todo</Text>
+              <Text c="dimmed" size="sm">
+                전체 Todo
+              </Text>
               <Title order={3}>{todos.length}개</Title>
             </Card>
 
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Text c="dimmed" size="sm">완료된 Todo</Text>
+              <Text c="dimmed" size="sm">
+                완료된 Todo
+              </Text>
               <Group>
                 <Title order={3}>{completedTodosCount}개</Title>
                 <RingProgress
@@ -85,22 +93,30 @@ const Dashboard = () => {
             </Card>
 
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Text c="dimmed" size="sm">시스템 상태</Text>
+              <Text c="dimmed" size="sm">
+                시스템 상태
+              </Text>
               <Title order={3} c={healthStatus?.status === 'ok' ? 'green' : 'red'}>
                 {healthStatus?.status === 'ok' ? '정상' : '오류'}
               </Title>
               {healthStatus && (
-                <Text size="xs" mt="xs">업타임: {healthStatus.uptime}초</Text>
+                <Text size="xs" mt="xs">
+                  업타임: {healthStatus.uptime}초
+                </Text>
               )}
             </Card>
 
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Text c="dimmed" size="sm">DB 상태</Text>
+              <Text c="dimmed" size="sm">
+                DB 상태
+              </Text>
               <Title order={3} c={dbStatus?.status === 'ok' ? 'green' : 'red'}>
                 {dbStatus?.status === 'ok' ? '정상' : '오류'}
               </Title>
               {dbStatus && (
-                <Text size="xs" mt="xs">응답 시간: {dbStatus.latency}ms</Text>
+                <Text size="xs" mt="xs">
+                  응답 시간: {dbStatus.latency}ms
+                </Text>
               )}
             </Card>
           </SimpleGrid>
@@ -108,7 +124,9 @@ const Dashboard = () => {
           <Grid mt="md">
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Title order={4} mb="sm">우선순위별 Todo</Title>
+                <Title order={4} mb="sm">
+                  우선순위별 Todo
+                </Title>
                 {Object.entries(priorityCounts).length > 0 ? (
                   <Stack>
                     {Array.from({ length: 5 }, (_, i) => i + 1).map(priority => (
@@ -126,20 +144,34 @@ const Dashboard = () => {
 
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Title order={4} mb="sm">시스템 리소스</Title>
+                <Title order={4} mb="sm">
+                  시스템 리소스
+                </Title>
                 {systemStatus ? (
                   <Stack>
                     <Group justify="space-between">
                       <Text>CPU 사용률</Text>
-                      <Text fw={500}>{typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0}%</Text>
+                      <Text fw={500}>
+                        {typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0}%
+                      </Text>
                     </Group>
                     <Group justify="space-between">
                       <Text>메모리 사용률</Text>
-                      <Text fw={500}>{typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0}%</Text>
+                      <Text fw={500}>
+                        {typeof systemStatus.memory?.percent === 'number'
+                          ? systemStatus.memory.percent
+                          : 0}
+                        %
+                      </Text>
                     </Group>
                     <Group justify="space-between">
                       <Text>디스크 사용률</Text>
-                      <Text fw={500}>{typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0}%</Text>
+                      <Text fw={500}>
+                        {typeof systemStatus.disk?.percent === 'number'
+                          ? systemStatus.disk.percent
+                          : 0}
+                        %
+                      </Text>
                     </Group>
                   </Stack>
                 ) : (
@@ -154,4 +186,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

@@ -37,14 +37,18 @@ const AppHeader = () => {
 
   return (
     <Group justify="space-between" h="100%" px="md">
-      <Title order={2} c="blue.7">TodoAPI 대시보드</Title>
+      <Title order={2} c="blue.7">
+        TodoAPI 대시보드
+      </Title>
 
       {!loading && (
         <Group>
           {user ? (
             <>
               <Text>안녕하세요, {user.name}님</Text>
-              <Button variant="subtle" onClick={handleLogout}>로그아웃</Button>
+              <Button variant="subtle" onClick={handleLogout}>
+                로그아웃
+              </Button>
             </>
           ) : (
             <Text>로그인이 필요합니다</Text>
@@ -55,4 +59,4 @@ const AppHeader = () => {
   );
 };
 
-export default AppHeader; 
+export default AppHeader;

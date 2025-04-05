@@ -9,11 +9,7 @@ import AppNavbar from './components/AppNavbar';
 
 function App() {
   return (
-    <AppShell
-      header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: 'sm' }}
-      padding="md"
-    >
+    <AppShell header={{ height: 60 }} navbar={{ width: 300, breakpoint: 'sm' }} padding="md">
       <AppShell.Header>
         <AppHeader />
       </AppShell.Header>

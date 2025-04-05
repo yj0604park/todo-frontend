@@ -1,5 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Card, Group, Stack, Text, Title, Table, Button, TextInput, NumberInput, ActionIcon, Modal, Textarea, Badge, Loader } from '@mantine/core';
+import {
+  Card,
+  Group,
+  Stack,
+  Text,
+  Title,
+  Table,
+  Button,
+  TextInput,
+  NumberInput,
+  ActionIcon,
+  Modal,
+  Textarea,
+  Badge,
+  Loader,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
 import apiClient from '../api/apiClient';
@@ -21,7 +36,7 @@ const Items = () => {
     name: '',
     description: '',
     price: 0,
-    stock: 0
+    stock: 0,
   });
 
   useEffect(() => {
@@ -55,7 +70,7 @@ const Items = () => {
         name: '',
         description: '',
         price: 0,
-        stock: 0
+        stock: 0,
       });
       close();
     } catch (err) {
@@ -75,14 +90,14 @@ const Items = () => {
         name: formData.name,
         description: formData.description,
         price: formData.price,
-        stock: formData.stock
+        stock: formData.stock,
       });
-      setItems(prev => prev.map(item => item._id === updatedItem._id ? updatedItem : item));
+      setItems(prev => prev.map(item => (item._id === updatedItem._id ? updatedItem : item)));
       setFormData({
         name: '',
         description: '',
         price: 0,
-        stock: 0
+        stock: 0,
       });
       setSelectedItem(null);
       close();
@@ -108,7 +123,7 @@ const Items = () => {
       name: item.name,
       description: item.description || '',
       price: item.price,
-      stock: item.stock || 0
+      stock: item.stock || 0,
     });
     setIsEditing(true);
     open();
@@ -120,15 +135,16 @@ const Items = () => {
       name: '',
       description: '',
       price: 0,
-      stock: 0
+      stock: 0,
     });
     setIsEditing(false);
     open();
   };
 
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredItems = items.filter(
+    item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // 재고 상태에 따른 색상
@@ -141,20 +157,28 @@ const Items = () => {
 
   return (
     <Stack>
-      <Title order={1} mb="md">아이템 관리</Title>
+      <Title order={1} mb="md">
+        아이템 관리
+      </Title>
 
       <Group justify="space-between" mb="md">
         <TextInput
           placeholder="아이템 검색..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           leftSection={<IconSearch size={16} />}
           style={{ width: '300px' }}
         />
-        <Button leftSection={<IconPlus size={18} />} onClick={handleAdd}>새 아이템 추가</Button>
+        <Button leftSection={<IconPlus size={18} />} onClick={handleAdd}>
+          새 아이템 추가
+        </Button>
       </Group>
 
-      {error && <Text c="red" mb="md">{error}</Text>}
+      {error && (
+        <Text c="red" mb="md">
+          {error}
+        </Text>
+      )}
 
       {loading ? (
         <Group justify="center">
@@ -177,7 +201,7 @@ const Items = () => {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {filteredItems.map((item) => (
+              {filteredItems.map(item => (
                 <Table.Tr key={item._id}>
                   <Table.Td>
                     <Text fw={500}>{item.name}</Text>
@@ -189,17 +213,11 @@ const Items = () => {
                     <Text>{item.price.toLocaleString('ko-KR')}원</Text>
                   </Table.Td>
                   <Table.Td>
-                    <Badge color={getStockColor(item.stock || 0)}>
-                      {item.stock || 0}개
-                    </Badge>
+                    <Badge color={getStockColor(item.stock || 0)}>{item.stock || 0}개</Badge>
                   </Table.Td>
                   <Table.Td>
                     <Group gap="xs">
-                      <ActionIcon
-                        variant="light"
-                        color="blue"
-                        onClick={() => handleEdit(item)}
-                      >
+                      <ActionIcon variant="light" color="blue" onClick={() => handleEdit(item)}>
                         <IconEdit size={18} />
                       </ActionIcon>
                       <ActionIcon
@@ -218,21 +236,21 @@ const Items = () => {
         </Card>
       )}
 
-      <Modal opened={opened} onClose={close} title={isEditing ? "아이템 수정" : "새 아이템 추가"}>
+      <Modal opened={opened} onClose={close} title={isEditing ? '아이템 수정' : '새 아이템 추가'}>
         <Stack>
           <TextInput
             label="이름"
             placeholder="아이템 이름"
             required
             value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
           />
 
           <Textarea
             label="설명"
             placeholder="아이템 설명"
             value={formData.description || ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
           />
 
           <NumberInput
@@ -240,7 +258,9 @@ const Items = () => {
             placeholder="가격"
             min={0}
             value={formData.price}
-            onChange={(value) => setFormData(prev => ({ ...prev, price: typeof value === 'number' ? value : 0 }))}
+            onChange={value =>
+              setFormData(prev => ({ ...prev, price: typeof value === 'number' ? value : 0 }))
+            }
             required
           />
 
@@ -249,13 +269,17 @@ const Items = () => {
             placeholder="재고"
             min={0}
             value={formData.stock || 0}
-            onChange={(value) => setFormData(prev => ({ ...prev, stock: typeof value === 'number' ? value : 0 }))}
+            onChange={value =>
+              setFormData(prev => ({ ...prev, stock: typeof value === 'number' ? value : 0 }))
+            }
           />
 
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={close}>취소</Button>
+            <Button variant="outline" onClick={close}>
+              취소
+            </Button>
             <Button onClick={isEditing ? handleUpdateItem : handleCreateItem}>
-              {isEditing ? "수정" : "추가"}
+              {isEditing ? '수정' : '추가'}
             </Button>
           </Group>
         </Stack>
@@ -264,4 +288,4 @@ const Items = () => {
   );
 };
 
-export default Items; 
+export default Items;
