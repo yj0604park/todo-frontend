@@ -120,26 +120,40 @@ const SystemStatus = () => {
               {systemStatus ? (
                 <Stack gap="xs">
                   <Text>CPU 사용률</Text>
-                  <Progress value={systemStatus.cpu || 0} color={getCpuColor(systemStatus.cpu)} mb="xs" />
+                  <Progress value={typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0} color={getCpuColor(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)} mb="xs" />
                   <Group justify="space-between">
-                    <Text size="xs">{systemStatus.cpu || 0}%</Text>
-                    <Text size="xs" c={getCpuColor(systemStatus.cpu)}>
-                      {getCpuStatus(systemStatus.cpu)}
+                    <Text size="xs">{typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0}%</Text>
+                    <Text size="xs" c={getCpuColor(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)}>
+                      {getCpuStatus(typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0)}
                     </Text>
                   </Group>
 
                   <Text mt="md">메모리 사용률</Text>
-                  <Progress value={systemStatus.memory?.percent || 0} color={getMemoryColor(systemStatus.memory?.percent)} mb="xs" />
+                  <Progress
+                    value={typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0}
+                    color={getMemoryColor(typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0)}
+                    mb="xs"
+                  />
                   <Group justify="space-between">
-                    <Text size="xs">{systemStatus.memory?.percent || 0}%</Text>
-                    <Text size="xs">{formatBytes(systemStatus.memory?.used || 0)} / {formatBytes(systemStatus.memory?.total || 0)}</Text>
+                    <Text size="xs">{typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0}%</Text>
+                    <Text size="xs">
+                      {typeof systemStatus.memory?.used === 'number' ? formatBytes(systemStatus.memory.used) : '0 B'} /
+                      {typeof systemStatus.memory?.total === 'number' ? formatBytes(systemStatus.memory.total) : '0 B'}
+                    </Text>
                   </Group>
 
                   <Text mt="md">디스크 사용률</Text>
-                  <Progress value={systemStatus.disk?.percent || 0} color={getDiskColor(systemStatus.disk?.percent)} mb="xs" />
+                  <Progress
+                    value={typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0}
+                    color={getDiskColor(typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0)}
+                    mb="xs"
+                  />
                   <Group justify="space-between">
-                    <Text size="xs">{systemStatus.disk?.percent || 0}%</Text>
-                    <Text size="xs">{formatBytes(systemStatus.disk?.used || 0)} / {formatBytes(systemStatus.disk?.total || 0)}</Text>
+                    <Text size="xs">{typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0}%</Text>
+                    <Text size="xs">
+                      {typeof systemStatus.disk?.used === 'number' ? formatBytes(systemStatus.disk.used) : '0 B'} /
+                      {typeof systemStatus.disk?.total === 'number' ? formatBytes(systemStatus.disk.total) : '0 B'}
+                    </Text>
                   </Group>
                 </Stack>
               ) : (

@@ -131,15 +131,15 @@ const Dashboard = () => {
                   <Stack>
                     <Group justify="space-between">
                       <Text>CPU 사용률</Text>
-                      <Text fw={500}>{systemStatus.cpu}%</Text>
+                      <Text fw={500}>{typeof systemStatus.cpu === 'number' ? systemStatus.cpu : 0}%</Text>
                     </Group>
                     <Group justify="space-between">
                       <Text>메모리 사용률</Text>
-                      <Text fw={500}>{systemStatus.memory?.percent}%</Text>
+                      <Text fw={500}>{typeof systemStatus.memory?.percent === 'number' ? systemStatus.memory.percent : 0}%</Text>
                     </Group>
                     <Group justify="space-between">
                       <Text>디스크 사용률</Text>
-                      <Text fw={500}>{systemStatus.disk?.percent}%</Text>
+                      <Text fw={500}>{typeof systemStatus.disk?.percent === 'number' ? systemStatus.disk.percent : 0}%</Text>
                     </Group>
                   </Stack>
                 ) : (
