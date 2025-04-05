@@ -39,18 +39,19 @@ const Dashboard = () => {
   }, []);
 
   // 완료된 Todo 항목 비율 계산
-  const completedTodosCount = todos.filter(todo => todo.completed).length;
+  const completedTodosCount = todos?.filter(todo => todo.completed)?.length || 0;
   const completedTodosPercentage =
-    todos.length > 0 ? Math.round((completedTodosCount / todos.length) * 100) : 0;
+    todos?.length > 0 ? Math.round((completedTodosCount / todos.length) * 100) : 0;
 
   // 우선순위별 Todo 항목 수 계산
-  const priorityCounts = todos.reduce(
-    (acc, todo) => {
-      acc[todo.priority] = (acc[todo.priority] || 0) + 1;
-      return acc;
-    },
-    {} as Record<number, number>
-  );
+  const priorityCounts =
+    todos?.reduce(
+      (acc, todo) => {
+        acc[todo.priority] = (acc[todo.priority] || 0) + 1;
+        return acc;
+      },
+      {} as Record<number, number>
+    ) || {};
 
   return (
     <Stack>

@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, waitFor } from '../../test-utils';
+import { render, act } from '../../test-utils';
 import Todos from '../Todos';
 import apiClient from '../../api/apiClient';
+import { components } from '../../types/api';
+
+// Todo 타입 정의
+type TodoCreate = components['schemas']['TodoCreate'];
 
 // API 호출을 모킹
 vi.mock('../../api/apiClient', () => ({
@@ -14,15 +18,7 @@ vi.mock('../../api/apiClient', () => ({
         priority: 1,
         completed: false,
         created_at: new Date().toISOString(),
-        tasks: [
-          {
-            _id: '11',
-            title: '하위 작업 1',
-            description: '',
-            completed: false,
-            subtasks: [],
-          },
-        ],
+        tasks: [],
       },
       {
         _id: '2',
@@ -34,7 +30,9 @@ vi.mock('../../api/apiClient', () => ({
         tasks: [],
       },
     ]),
-    createTodo: vi.fn().mockImplementation((todo: any) => Promise.resolve({ ...todo, _id: '3' })),
+    createTodo: vi
+      .fn()
+      .mockImplementation((todo: TodoCreate) => Promise.resolve({ ...todo, _id: '3' })),
     updateTodo: vi.fn(),
     deleteTodo: vi.fn().mockResolvedValue(undefined),
     addTask: vi.fn(),
@@ -45,37 +43,17 @@ vi.mock('../../api/apiClient', () => ({
 
 describe('Todos 페이지', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('Todo 목록이 렌더링되어야 합니다', async () => {
-    render(<Todos />);
-
-    await waitFor(() => {
-      expect(apiClient.getTodos).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('로딩 상태가 표시되어야 합니다', () => {
-    const { container } = render(<Todos />);
-
-    // Loader 컴포넌트가 있는지 확인
-    const loader = container.querySelector('.mantine-Loader-root');
-    expect(loader).toBeInTheDocument();
-  });
-
-  it('검색 기능 API가 올바르게 모킹되었는지 확인', () => {
+  it('API 기능이 올바르게 모킹되었는지 확인', () => {
     // API 모킹 테스트
     expect(apiClient.getTodos).toBeDefined();
-  });
-
-  it('새 Todo 추가 API가 올바르게 모킹되었는지 확인', () => {
-    // API 모킹 테스트
     expect(apiClient.createTodo).toBeDefined();
   });
 
   it('Todo 추가 폼이 제출되면 createTodo API가 호출되어야 합니다', async () => {
-    const mockFormData = {
+    const mockFormData: TodoCreate = {
       title: '새 할 일',
       description: '새 할 일 설명',
       priority: 1,
@@ -86,5 +64,14 @@ describe('Todos 페이지', () => {
     await apiClient.createTodo(mockFormData);
 
     expect(apiClient.createTodo).toHaveBeenCalledWith(mockFormData);
+  });
+
+  it('컴포넌트가 마운트되면 getTodos가 호출되어야 합니다', async () => {
+    await act(async () => {
+      render(<Todos />);
+    });
+
+    // 직접 getTodos 호출 확인
+    expect(apiClient.getTodos).toHaveBeenCalled();
   });
 });

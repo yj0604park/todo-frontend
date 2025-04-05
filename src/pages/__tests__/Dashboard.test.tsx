@@ -6,13 +6,6 @@ import apiClient from '../../api/apiClient';
 // API 호출을 모킹
 vi.mock('../../api/apiClient', () => ({
   default: {
-    getHealth: vi.fn().mockResolvedValue({ status: 'ok' }),
-    getDbHealth: vi.fn().mockResolvedValue({ status: 'ok' }),
-    getSystemHealth: vi.fn().mockResolvedValue({
-      cpu: 25,
-      memory: { total: 16000, used: 8000, percent: 50 },
-      disk: { total: 500000, used: 250000, percent: 50 },
-    }),
     getTodos: vi.fn().mockResolvedValue([
       {
         _id: '1',
@@ -20,51 +13,59 @@ vi.mock('../../api/apiClient', () => ({
         description: '테스트 설명',
         priority: 1,
         completed: false,
+        created_at: '2023-01-01T00:00:00Z',
+        tasks: [],
+      },
+      {
+        _id: '2',
+        title: '완료된 할 일',
+        description: '완료된 설명',
+        priority: 2,
+        completed: true,
+        created_at: '2023-01-02T00:00:00Z',
         tasks: [],
       },
     ]),
-    getHealthStatus: vi.fn().mockResolvedValue({ status: 'ok' }),
+    getHealthStatus: vi.fn().mockResolvedValue({
+      status: 'ok',
+      uptime: 3600,
+    }),
+    getDbHealth: vi.fn().mockResolvedValue({
+      status: 'ok',
+      latency: 5,
+    }),
+    getSystemHealth: vi.fn().mockResolvedValue({
+      cpu: 25,
+      memory: { total: 16000, used: 8000, percent: 50 },
+      disk: { total: 500000, used: 250000, percent: 50 },
+    }),
   },
 }));
 
 describe('Dashboard 컴포넌트', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('대시보드 제목이 렌더링되어야 합니다', async () => {
+  it('Dashboard 컴포넌트 렌더링 및 API 호출 확인', async () => {
+    // 컴포넌트 렌더링
     render(<Dashboard />);
 
+    // 기본 UI 확인
     expect(screen.getByText('대시보드')).toBeInTheDocument();
-  });
 
-  it('시스템 상태 정보가 렌더링되어야 합니다', async () => {
-    render(<Dashboard />);
-
+    // API 호출 확인
     await waitFor(() => {
-      expect(apiClient.getSystemHealth).toHaveBeenCalled();
-      expect(screen.getByText(/대시보드/i)).toBeInTheDocument();
+      expect(apiClient.getTodos).toHaveBeenCalledTimes(1);
+      expect(apiClient.getHealthStatus).toHaveBeenCalledTimes(1);
+      expect(apiClient.getDbHealth).toHaveBeenCalledTimes(1);
+      expect(apiClient.getSystemHealth).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it('최근 할 일 목록이 렌더링되어야 합니다', async () => {
-    render(<Dashboard />);
-
-    await waitFor(() => {
-      expect(apiClient.getTodos).toHaveBeenCalled();
-      expect(screen.getByText(/대시보드/i)).toBeInTheDocument();
-    });
-  });
-
-  it('로딩 상태가 표시되어야 합니다', () => {
-    render(<Dashboard />);
-
-    expect(screen.getByText(/대시보드/i)).toBeInTheDocument();
   });
 
   it('API 오류가 발생하면 오류 메시지가 표시되어야 합니다', async () => {
     // API 오류 발생 시뮬레이션
-    (apiClient.getTodos as any).mockRejectedValue(new Error('API 오류'));
+    vi.mocked(apiClient.getTodos).mockRejectedValueOnce(new Error('API 오류'));
 
     render(<Dashboard />);
 

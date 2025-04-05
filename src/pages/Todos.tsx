@@ -364,11 +364,12 @@ const Todos = () => {
     }
   };
 
-  const filteredTodos = todos.filter(
-    todo =>
-      todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (todo.description && todo.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredTodos =
+    todos?.filter(
+      todo =>
+        todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (todo.description && todo.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    ) || [];
 
   const priorityColors: Record<number, string> = {
     1: 'blue',

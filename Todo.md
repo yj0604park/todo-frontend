@@ -18,8 +18,12 @@
 - 상태 관리 라이브러리 도입 (Redux, Zustand 등)
 
 ## 테스트 및 품질
-- 테스트 버그 수정 및 환경 개선
-  - MantineProvider 래퍼 문제 해결
-  - apiClient 모킹 개선
-  - Todo 컴포넌트 테스트 수정
-  - coverage 측정 추가
+- act(...) 경고 해결
+- 테스트 커버리지 80% 이상 달성
+
+## 완료된 작업
+- Todos, Dashboard 컴포넌트에서 undefined 데이터 처리 개선
+- 테스트 환경 개선 
+  - apiClient 테스트 수정
+  - Dashboard 컴포넌트 테스트 수정
+  - Todos 컴포넌트 테스트 수정
