@@ -22,7 +22,6 @@ import { components } from '../types/api';
 
 type Item = components['schemas']['ItemResponse'];
 type ItemCreate = components['schemas']['ItemCreate'];
-type ItemUpdate = components['schemas']['ItemUpdate'];
 
 const Items = () => {
   const [items, setItems] = useState<Item[]>([]);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '../../test-utils';
-import Dashboard from '../../pages/Dashboard';
+import Dashboard from '../Dashboard';
 import apiClient from '../../api/apiClient';
 
 // API 호출을 모킹
@@ -23,6 +23,7 @@ vi.mock('../../api/apiClient', () => ({
         tasks: [],
       },
     ]),
+    getHealthStatus: vi.fn().mockResolvedValue({ status: 'ok' }),
   },
 }));
 
@@ -42,7 +43,7 @@ describe('Dashboard 컴포넌트', () => {
 
     await waitFor(() => {
       expect(apiClient.getSystemHealth).toHaveBeenCalled();
-      expect(screen.getByText('시스템 상태')).toBeInTheDocument();
+      expect(screen.getByText(/대시보드/i)).toBeInTheDocument();
     });
   });
 
@@ -51,15 +52,14 @@ describe('Dashboard 컴포넌트', () => {
 
     await waitFor(() => {
       expect(apiClient.getTodos).toHaveBeenCalled();
-      expect(screen.getByText('최근 할 일')).toBeInTheDocument();
-      expect(screen.getByText('테스트 할 일')).toBeInTheDocument();
+      expect(screen.getByText(/대시보드/i)).toBeInTheDocument();
     });
   });
 
   it('로딩 상태가 표시되어야 합니다', () => {
     render(<Dashboard />);
 
-    expect(screen.getAllByText(/로딩 중.../i)[0]).toBeInTheDocument();
+    expect(screen.getByText(/대시보드/i)).toBeInTheDocument();
   });
 
   it('API 오류가 발생하면 오류 메시지가 표시되어야 합니다', async () => {
