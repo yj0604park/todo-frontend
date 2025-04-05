@@ -21,6 +21,9 @@ jobs:
     
     - name: 의존성 설치
       run: npm ci
+      
+    - name: jq 설치
+      run: sudo apt-get install jq
     
     - name: 린트 실행
       run: npm run lint
@@ -35,4 +38,72 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-coverage
-        path: coverage/ 
+        path: coverage/
+        
+    - name: 코드 커버리지 표시
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./coverage
+        fail_ci_if_error: false
+        verbose: true
+        
+    - name: 커버리지 임계값 검사
+      run: |
+        TOTAL_COVERAGE=$(cat ./coverage/coverage-summary.json | jq '.total.lines.pct')
+        echo "Total coverage: $TOTAL_COVERAGE%"
+        if (( $(echo "$TOTAL_COVERAGE < 80" | bc -l) )); then
+          echo "코드 커버리지가 80% 미만입니다: $TOTAL_COVERAGE%"
+          exit 1
+        fi
+      continue-on-error: true
+      
+    - name: 테스트 요약 보고서 생성
+      if: always()
+      run: |
+        echo "### 테스트 결과 📊" >> $GITHUB_STEP_SUMMARY
+        echo "✅ 테스트 실행 완료" >> $GITHUB_STEP_SUMMARY
+        echo "📝 커버리지 리포트는 아티팩트에서 확인할 수 있습니다." >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "./coverage/coverage-summary.json" ]; then
+          LINES=$(cat ./coverage/coverage-summary.json | jq '.total.lines.pct')
+          STATEMENTS=$(cat ./coverage/coverage-summary.json | jq '.total.statements.pct')
+          FUNCTIONS=$(cat ./coverage/coverage-summary.json | jq '.total.functions.pct')
+          BRANCHES=$(cat ./coverage/coverage-summary.json | jq '.total.branches.pct')
+          
+          echo "| 유형 | 커버리지 |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| 라인 | ${LINES}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| 구문 | ${STATEMENTS}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| 함수 | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| 분기 | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+  # 커버리지 리포트 페이지 배포 작업
+  deploy-coverage:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    steps:
+      - name: 테스트 결과 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage
+          path: coverage
+      
+      - name: 페이지 설정
+        uses: actions/configure-pages@v4
+      
+      - name: 페이지 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'coverage'
+      
+      - name: 페이지 배포
+        id: deployment
+        uses: actions/deploy-pages@v4 
