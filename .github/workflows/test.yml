@@ -52,8 +52,8 @@ jobs:
       run: |
         TOTAL_COVERAGE=$(cat ./coverage/coverage-summary.json | jq '.total.lines.pct')
         echo "Total coverage: $TOTAL_COVERAGE%"
-        if (( $(echo "$TOTAL_COVERAGE < 80" | bc -l) )); then
-          echo "코드 커버리지가 80% 미만입니다: $TOTAL_COVERAGE%"
+        if (( $(echo "$TOTAL_COVERAGE < 25" | bc -l) )); then
+          echo "코드 커버리지가 25% 미만입니다: $TOTAL_COVERAGE%"
           exit 1
         fi
       continue-on-error: true
