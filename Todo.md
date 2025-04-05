@@ -22,3 +22,4 @@
   - MantineProvider 래퍼 문제 해결
   - apiClient 모킹 개선
   - Todo 컴포넌트 테스트 수정
+  - coverage 측정 추가
